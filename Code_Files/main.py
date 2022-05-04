@@ -1,0 +1,86 @@
+import pandas as pd
+from art import logo
+import utils
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 7000)
+
+print(logo,'\n Welcome to the joys of London!\n',)
+# # 1. Create objects
+utl_obj= utils.utilities()
+api_obj= utils.api()
+#Show Menu
+main_menu=utl_obj.view_menu()
+main_menu_df=pd.DataFrame(main_menu.items())
+main_menu_df.columns=['Option','Activity']
+main_menu_df = main_menu_df.set_index(['Option'])
+print(main_menu_df)
+
+# 3. Users selects option
+option=utl_obj.user_input('What are you looking for today? ')
+
+if option=='1' or option=='3' or option=='5':
+            user_location = utl_obj.user_input('Please enter your location and city or post_code: ')
+
+            parameters = {'searchText': user_location,
+                           'apiKey': api_obj.api_key_geocoding
+                         }
+            data=api_obj.get_api_response(api_obj.endpoint_geocoding,None,parameters)
+
+            coordinates_lat=data['locations'][0]['referencePosition']['latitude']       #Fetches the latitude of the lccation entered
+            coordinates_longitude=data['locations'][0]['referencePosition']['longitude']     #Fetches the longitude of the lccation entered
+
+            # 5. call tomtom api wit hte lat, lon and the option selected
+            params={
+                'limit':25,
+                'radius':5000,
+                'countrySet':'GBR',
+                'lat':str(coordinates_lat),
+                'lon':str(coordinates_longitude),
+                'key':api_obj.api_key_tomtom,
+                'view':'Unified',
+                'relatedPois':'off'
+                   }
+            results_json=api_obj.get_api_response(api_obj.endpoint_tomtom+main_menu[int(option)]+'.json',None,params)
+            category_results=[]
+            for i in range(len(results_json['results'])):
+                    category_dict={}
+                    category_dict['NAME']=results_json['results'][i]['poi']['name']
+                    category_dict['ADDRESS']=results_json['results'][i]['address']['freeformAddress']
+                    category_dict['CATEGORY']=results_json['results'][i]['poi']['categories'][0].title()
+                    if 'phone' in results_json['results'][i]['poi']:
+                            category_dict['PHONE']=results_json['results'][i]['poi']['phone']
+                    else:
+                        category_dict['PHONE'] =''
+                    category_results.append(category_dict)
+            print(utl_obj.create_table(category_results))
+
+elif option=='2' or option=='4':
+        user_location = utl_obj.user_input('Please enter your location and city: ')
+        headers = {
+            'Authorization': 'Bearer %s' % api_obj.api_key_yelp
+        }
+
+        parameters = {'location': user_location,
+                      'term': main_menu[int(option)],
+                      'radius': 2000,
+                      'limit': None}
+
+        data1=api_obj.get_api_response(api_obj.endpoint_yelp,headers,parameters)
+        print(data1)
+        results=[]
+        for i in range(len(data1['businesses'])):
+            features={}
+            features['NAME']=data1['businesses'][i]['name']
+            features['TYPE']=data1['businesses'][i]['categories'][0]['title']
+            features['PRICE']= '' if 'price' not in data1['businesses'][i] else data1['businesses'][i]['price']
+            features['RATING']=data1['businesses'][i]['rating']
+            features['REVIEW_COUNT']=data1['businesses'][i]['review_count']
+            features['IS_OPEN'] = 'Yes' if data1['businesses'][i]['is_closed']==False else 'No'
+            features['ADDRESS'] = ','.join(data1['businesses'][i]['location']['display_address'])
+            features['PHONE'] = data1['businesses'][i]['display_phone']
+            results.append(features)
+        print(utl_obj.create_table(results))
+
+else:
+    print('Sorry, you have chosen a wrong option.')
+
