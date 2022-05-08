@@ -18,7 +18,7 @@ def main():
             main_menu_df = main_menu_df.set_index(['Option'])
             print(main_menu_df)
             main_menu_option=utl_obj.user_input('Choose an option:')
-            if main_menu_option==1:
+            if main_menu_option=='1':
                 sub_menu=utl_obj.view_menu()
                 sub_menu_df=pd.DataFrame(sub_menu.items())
                 sub_menu_df.columns=['Option','Activity']
@@ -50,7 +50,9 @@ def main():
                                 'view':'Unified',
                                 'relatedPois':'off'
                                    }
-                            results_json=api_obj.get_api_response(api_obj.endpoint_tomtom+main_menu[int(option)]+'.json',None,params)
+
+                            results_json=api_obj.get_api_response(api_obj.endpoint_tomtom+sub_menu[int(option)]+'.json',None,params)
+
                             category_results=[]
                             for i in range(len(results_json['results'])):
                                     category_dict={}
@@ -74,7 +76,7 @@ def main():
                         }
 
                         parameters = {'location': user_location,
-                                      'term': main_menu[int(option)],
+                                      'term': sub_menu[int(option)],
                                       'radius': 2000,
                                       'limit': None}
 
@@ -103,7 +105,7 @@ def main():
                 else:
                     print('Sorry, this is not a valid choice.')
 
-            elif main_menu_option==2:
+            elif main_menu_option=='2':
                 print('Customer Support: 02036874453\n Email Address:escapade@gmail.com')
 
             else:
@@ -118,7 +120,8 @@ def main():
                     exit()
                 else:
                     exit()
-    except:
+    except Exception as e:
+        print(e)
         print('Application Error. Please login again.')
         exit()
 

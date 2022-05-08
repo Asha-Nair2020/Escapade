@@ -4,8 +4,7 @@ import numpy as np
 class api:
 
         def __init__(self):
-                #self.api_key_tomtom='IRw2IHAJbL34s8WgUK0LJXmAGwtHjGwF'
-                self.api_key_tomtom = 'IRw2IHAJbL34s8WgUK0LJXmAGwtHjGw'
+                self.api_key_tomtom='IRw2IHAJbL34s8WgUK0LJXmAGwtHjGwF'
                 self.api_key_geocoding='MThkNjNjYWMxMWRmNDQxMWFhMzdhYzA0YzI3NzMwZDQ6MDg0OGRkZGQtN2FiZi00OTE2LTg4M2ItMTM2MzJkNDRhZWEw'
                 self.api_key_yelp='1dU6Q3s0JGTMQHbcGM1AhMD2U083gufXqvIEBADCdjyEgD5Yx-oSV-ro0TIv1JzKORsBHYy50iNTi13G8wgYUCzzIn_-ZKWi_2lndstW37vvSC8LYS686MtqZyRoYnYx'
                 self.endpoint_geocoding='https://api.myptv.com/geocoding/v1/locations/by-text'
