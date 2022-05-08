@@ -112,7 +112,7 @@ def main():
                 if rating_option == 'Y':
                     app_rating = utl_obj.user_input('From 1-5,How would you rate us?')
 
-                    ## <Call the class method to insert rating to DB.>
+                    ## <Call the class method to insert application rating to DB.>
 
                     print('Thank you for rating us. It was a pleasure to serve you.')
                     exit()
