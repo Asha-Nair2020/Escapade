@@ -1,4 +1,4 @@
-logo="""                                                                              
+logo = """                                                                              
       ,ggggggg,                                                                              
 --   ,dP""""""Y8b                                                                          
 --   d8'    a  Y8                                                                 8I          
