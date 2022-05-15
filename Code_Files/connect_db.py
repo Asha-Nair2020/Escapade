@@ -105,37 +105,52 @@ def insert_new_review(reviews):
 
 # 3 ESCAPADE USERS
 
-# this is what we are adding, as a Dict in key value pairs (here is where users info function will go)
-# this is just an example - will most likely change into methods/inputs
-users = {
-    'userID': '123',
-    'UsersNames': '456',
-    'UsersPasswords': 'abc'
-}
+# users = {
+#     'userID': '123',
+#     'UsersNames': '456',
+#     'UsersPasswords': 'abc'
+# }
 
-
-def insert_new_users(users):
+def get_all_records():
     try:
-        db_name = 'try'
+        db_name = "project"
         db_connection = _connect_to_db(db_name)
         cur = db_connection.cursor()
-        print("Connected to DB: %s" % db_name)
 
-        # now we are running our query, when we are inserting into our DB, we have to specify column, we could write
-        # them out but this is faster, the ones that will be strings need '' around {} as when it gets sent to SQL it
-        # will only see the raw string in query only so we need to re add the strings (only do the columns/keys)
-        query = """INSERT INTO Escapade_Users ({}) VALUES ('{}', '{}', '{}')""".format(
-            ', '.join(users.keys()),
-            users['userID'],
-            users['UsersNames'],
-            users['UsersPasswords'],
-        )
+        query = """SELECT * FROM escapade_users"""
+        cur.execute(query)
+        results = cur.fetchall()
+
+        return results #this is needed or it gives none data type
+
+
+    except Exception:
+        DbConnectionError("Failed to connect to database")
+    finally:
+        if db_connection:
+            db_connection.close()
+
+
+#if using check1 to check if username is already present, need to enter username as input
+def insert_new_users(record):
+    try:
+        db_name = "try"
+        db_connection = _connect_to_db(db_name)
+        cur = db_connection.cursor()
+        print("connected to DB: ", db_name)
+
+        # cur.execute("Select * from escapade_users where USER_NAME = ?", (username))
+        # check1 = cur.fetchone()
+
+        query = """ INSERT INTO escapade_users ({})
+        VALUES ("{}", "{}")
+        """.format(",".join(record.keys()), record['USER_NAME'], record['USER_PASSWORD'])
         cur.execute(query)
         db_connection.commit()
         cur.close()
 
     except Exception:
-        raise DbConnectionError("Failed to read data from DB")
+        raise DbConnectionError("Sign up failed")
 
     finally:
         if db_connection:
@@ -144,6 +159,17 @@ def insert_new_users(users):
 
     print("Record added to DB")
 
+
+def password_from_inputted_username(username, password):
+    records = get_all_records()
+    password_based_on_user = [x for x in records if x[1] == username]
+    print(password_based_on_user)   ##remove later
+    for i in password_based_on_user:
+        print(i[2])    ## remove latez
+    if password == i[2]:
+        print("congratulations!")
+    else:
+        print("try again")
 
 # uncomment to use - will most likely be a for loop
 if __name__ == '__main__':

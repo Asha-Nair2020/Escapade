@@ -1,6 +1,8 @@
 import requests
 import pandas as pd
 import numpy as np
+from connect_db import password_from_inputted_username, insert_new_users
+
 class api:
 
         def __init__(self):
@@ -59,10 +61,45 @@ class user:
                 self.password=password
                 self.phone_number=phone_number
                 self.recovery_email=recovery_email
-        """
-        
-        
-        """
+
+        def password_checker(registeredpassword):
+                numerics = '0123456789'
+                capitals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                special_characters = "!$£&%*:;@#~+=-_^"
+                sum = 0
+                w = 0
+                x = 0
+                y = 0
+                z = 0
+                while sum != 4:
+                        # while len(password) != 5:
+                        #     password = input("Please enter a correct password")
+
+                        for i in range(len(registeredpassword)):
+                                if len(registeredpassword) > 5:
+                                        w = 1
+                                if registeredpassword[i] in numerics:
+                                        x = 1
+                                if registeredpassword[i] in capitals:
+                                        y = 1
+                                if registeredpassword[i] in special_characters:
+                                        z = 1
+                        sum = w + x + y + z
+                        if sum == 4:
+                                print("Password is accepted")
+                                ##use serial for user id = wont have to  add this in
+                                record = {
+                                        "USER_NAME": registeredname,
+                                        "USER_PASSWORD": registeredpassword
+                                }
+                                insert_record(record, registeredname)
+
+                        else:
+                                print(
+                                        "Password entered does not meet requirements. \n The requirements: a special character, a capital and must be greater than 5 characters")
+                                registeredpassword = input("Please enter a correct password: ")
+
+
 class escapade_db(user):
 
         pass
