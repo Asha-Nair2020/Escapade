@@ -1,8 +1,8 @@
 logo = """                                                                              
       ,ggggggg,                                                                              
 --   ,dP""""""Y8b                                                                          
---   d8'    a  Y8                                                                 8I          
---   88     "Y8P'                                                                 8I          
+--   d8'       Y8                                                                 8I          
+--   88                                                                           8I          
 --   `8baaaa                                                                      8I          
 --  ,d8P''''        ,g,       ,gggg,    ,gggg,gg  gg,gggg,      ,gggg,gg    ,gggg,8I   ,ggg,
 --  d8"            ,8'8,     dP"  "Yb  dP"  "Y8I  I8P"  "Yb    dP"  "Y8I   dP"  "Y8I  i8" "8i
