@@ -1,6 +1,8 @@
 import requests
 import pandas as pd
 import numpy as np
+from connect_db import password_from_inputted_username, insert_new_users
+
 class api:
 
         def __init__(self):
@@ -12,10 +14,12 @@ class api:
                 self.endpoint_yelp='https://api.yelp.com/v3/businesses/search'
 
         def get_api_response(self,endpoint,headers,params):
-
-                response = requests.get(url=endpoint, headers=headers, params=params)
-                response_data = response.json()
-                return response_data
+                try:
+                        response = requests.get(url=endpoint, headers=headers, params=params)
+                        response_data = response.json()
+                        return response_data
+                except Exception as e:
+                        print('API error.',e)
 
 class utilities:
 
@@ -24,30 +28,81 @@ class utilities:
                 return q
 
         def view_menu(self):
-                menu ={1: 'Attractions', 2: 'Restaurants',
-                             3: 'Nature', 4: 'Shopping', 5: 'Hotels'}
-                return menu
+                try:
+                        menu ={1: 'Attractions', 2: 'Restaurants',
+                                     3: 'Experience Nature', 4: 'Shopping', 5: 'Hotels',0:'Return to Main Menu'}
+                        return menu
+                except Exception as e:
+                        print(e)
+
+        def view_main_menu(self):
+                try:
+                        main_menu ={1: 'Search', 2: 'Help',0:'Exit Application'}
+                        return main_menu
+
+                except Exception as e:
+                        print(e)
 
         def create_table(self,search_result):
-                df = pd.DataFrame(search_result)
-                df.index = np.arange(1, len(df) + 1)
-                return df
+                try:
+                        df = pd.DataFrame(search_result)
+                        df.index = np.arange(1, len(df) + 1)
+                        return df
+                except Exception as e:
+                        print(e)
+
 
 ## Please start code here
 
 class user:
-        def __init__(self,name,email_address,password,phone_number):
+        def __init__(self,name,email_address,password,phone_number,recovery_email):
                 self.name=name
                 self.email_address=email_address
                 self.password=password
                 self.phone_number=phone_number
-        """
-        
-        
-        """
+                self.recovery_email=recovery_email
+
+        def password_checker(registeredpassword):
+                numerics = '0123456789'
+                capitals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                special_characters = "!$£&%*:;@#~+=-_^"
+                sum = 0
+                w = 0
+                x = 0
+                y = 0
+                z = 0
+                while sum != 4:
+                        # while len(password) != 5:
+                        #     password = input("Please enter a correct password")
+
+                        for i in range(len(registeredpassword)):
+                                if len(registeredpassword) > 5:
+                                        w = 1
+                                if registeredpassword[i] in numerics:
+                                        x = 1
+                                if registeredpassword[i] in capitals:
+                                        y = 1
+                                if registeredpassword[i] in special_characters:
+                                        z = 1
+                        sum = w + x + y + z
+                        if sum == 4:
+                                print("Password is accepted")
+                                ##use serial for user id = wont have to  add this in
+                                record = {
+                                        "USER_NAME": registeredname,
+                                        "USER_PASSWORD": registeredpassword
+                                }
+                                insert_record(record, registeredname)
+
+                        else:
+                                print(
+                                        "Password entered does not meet requirements. \n The requirements: a special character, a capital and must be greater than 5 characters")
+                                registeredpassword = input("Please enter a correct password: ")
+
+
 class escapade_db(user):
-        """
+
+        pass
 
 
 
-        """
