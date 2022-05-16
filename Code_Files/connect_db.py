@@ -1,5 +1,7 @@
 import mysql.connector
 from config import HOST, USER, PASSWORD
+import utils
+
 
 
 def _connect_to_db(db_name):
@@ -48,11 +50,9 @@ def _connect_to_db(db_name):
     print("Record added to DB")
 
 
-    
-    
-    
-    
-    
+
+
+   
 # 2 APPLICATION RAITING 
 
 def insert_application_rating(given_rating):
@@ -73,7 +73,8 @@ def insert_application_rating(given_rating):
 
 
 
-# 2 REVIEWS OF RECOMMENDATIONS
+# 3 REVIEWS OF RECOMMENDATIONS
+
 
 # this is what we are adding, as a Dict in key value pairs (where the users review function will go/imported in)
 # this is just an example
@@ -83,8 +84,6 @@ reviews = {
     'RecsNames': 'abc',
     'Review': '123'
 }
-
-
 def insert_new_review(reviews):
     try:
         db_name = 'try'
@@ -117,8 +116,7 @@ def insert_new_review(reviews):
     print("Record added to DB")
 
 
-    
-    
+
 # 3 ESCAPADE USERS
 
 # users = {
@@ -168,8 +166,6 @@ def insert_new_users(record):
     except Exception:
         raise DbConnectionError("Sign up failed")
 
-        
-
 
 
 def password_from_inputted_username(username, password):
@@ -185,9 +181,10 @@ def password_from_inputted_username(username, password):
         
         
 
-# uncomment to use - will most likely be a for loop
+
 if __name__ == '__main__':
     _connect_to_db('Escapade')
+    # insert_new_users()
     # insert_new_recommendation(recommendation)
     # insert_new_review(reviews)
-    # insert_new_users(users)
+
