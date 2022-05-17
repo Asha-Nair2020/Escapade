@@ -92,7 +92,7 @@ def main():
                         if recommendation == "No" or recommendation == "no":
                             main()
                         if recommendation == "Yes" or recommendation =="yes":
-                            print(usr.user_id)
+
                             connect_db.insert_new_recommendation(int(usr.user_id),selected_spot)
                             print("This recommendation will save to your favourites now!")
                         else:

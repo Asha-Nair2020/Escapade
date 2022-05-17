@@ -83,11 +83,16 @@ def register():
     name = input("Name: ")
     email_address = input("Email address: ")
     password = input("Password: ")
-    connect_db.insert_new_users(name, email_address, password)
-    record=connect_db.get_all_records(email_address)
-    new_user = user(record[0][0],name, email_address, password)
-    print("Welcome, " + new_user.name)
-    return new_user
+    password_validity=password_checker(password)
+    if password_validity:
+        connect_db.insert_new_users(name, email_address, password)
+        record=connect_db.get_all_records(email_address)
+        new_user = user(record[0][0],name, email_address, password)
+        print("Welcome, " + new_user.name)
+        return new_user
+    else:
+        print("Password entered does not meet requirements. \n The requirements: a special character,a number, a capital and must be greater than 5 characters")
+        register()
 
 def login():
     login_email = input("Email address: ")
@@ -130,17 +135,17 @@ def password_checker(registeredpassword):
         sum = w + x + y + z
         if sum == 4:
             print("Password is accepted")
+            return True
             ##use serial for user id = wont have to  add this in
-            record = {
-                "USER_NAME": registeredname,
-                "USER_PASSWORD": registeredpassword
-            }
-            insert_record(record, registeredname)
+            # record = {
+            #     "USER_NAME": registeredname,
+            #     "USER_PASSWORD": registeredpassword
+            # }
+            # insert_record(record, registeredname)
 
         else:
-            print(
-                "Password entered does not meet requirements. \n The requirements: a special character, a capital and must be greater than 5 characters")
-            registeredpassword = input("Please enter a correct password: ")
+            return False
+            #registeredpassword = input("Please enter a correct password: ")
 
 
 class user:

@@ -46,7 +46,7 @@ def insert_new_recommendation(user_id,selected_spot):
     finally:
         if db_connection:
             db_connection.close()
-            print("DB connection is closed")
+            #print("DB connection is closed")
 
 # 2 APPLICATION RAITING 
 
@@ -72,7 +72,7 @@ def insert_application_rating(user_id,given_rating):
     finally:
         if db_connection:
             db_connection.close()
-            print("DB connection is closed")
+            #print("DB connection is closed")
 
 
 # 3 REVIEWS OF RECOMMENDATIONS
