@@ -2,7 +2,8 @@ import mysql.connector
 from config import HOST, USER, PASSWORD
 import utils
 
-
+class DbConnectionError(Exception):
+    pass
 
 def _connect_to_db(db_name):
     connection = mysql.connector.connect(
@@ -17,19 +18,18 @@ def _connect_to_db(db_name):
   
 # 1 RECOMMENDATIONS
 
-  def insert_new_recommendation(selected_spot):
+def insert_new_recommendation(user_id,selected_spot):
     try:
       db_name = 'Escapade'
       db_connection = _connect_to_db(db_name)
       cur = db_connection.cursor()
-      print("Connected to DB: %s" % db_name)
-      query = """INSERT INTO saved_recommendations s 
+      #print("Connected to DB: %s" % db_name)
+      query = """INSERT INTO saved_recommendations
       (USER_ID, NAME, ADDRESS, CATEGORY, PHONE) 
       VALUES ("{}", "{}", "{}", "{}", "{}")
-      INNER JOIN escapade_users e ON s.USER_ID = e.USER_ID"
       """.format(
 
-          2,
+          user_id,
           selected_spot["NAME"],
           selected_spot["ADDRESS"],
           selected_spot["CATEGORY"],
@@ -39,7 +39,8 @@ def _connect_to_db(db_name):
       db_connection.commit()
       cur.close()
      
-    except Exception:
+    except Exception as e:
+        print(e)
         raise DbConnectionError("Failed to read data from DB")
 
     finally:
@@ -47,59 +48,19 @@ def _connect_to_db(db_name):
             db_connection.close()
             print("DB connection is closed")
 
-    print("Record added to DB")
-
-
-
-
-   
 # 2 APPLICATION RAITING 
 
-def insert_application_rating(given_rating):
-    db_name = 'Escapade'
-    db_connection = _connect_to_db(db_name)
-    cur = db_connection.cursor()
-    print("Connected to DB: %s" % db_name)
-    query = """INSERT INTO application_rating 
-    (USER_ID, NAME, ADDRESS, CATEGORY, PHONE) 
-    VALUES ("{}", "{}")""".format(
-        2,
-        given_rating["APPLICATION_RATING"],
-    )
-    cur.execute(query)
-    db_connection.commit()
-    cur.close()
-    
-
-
-
-# 3 REVIEWS OF RECOMMENDATIONS
-
-
-# this is what we are adding, as a Dict in key value pairs (where the users review function will go/imported in)
-# this is just an example
-reviews = {
-    'userID': '123',
-    'RecsID': '456',
-    'RecsNames': 'abc',
-    'Review': '123'
-}
-def insert_new_review(reviews):
+def insert_application_rating(user_id,given_rating):
     try:
-        db_name = 'try'
+        db_name = 'Escapade'
         db_connection = _connect_to_db(db_name)
         cur = db_connection.cursor()
-        print("Connected to DB: %s" % db_name)
-
-        # now we are running our query, when we are inserting into our DB, we have to specify column, we could write
-        # them out but this is faster, the ones that will be strings need '' around {} as when it gets sent to SQL it
-        # will only see the raw string in query only so we need to re add the strings (only do the columns/keys)
-        query = """INSERT INTO reviews ({}) VALUES ('{}', '{}', '{}', '{}')""".format(
-            ', '.join(reviews.keys()),
-            reviews['userID'],
-            reviews['RecsID'],
-            reviews['RecsNames'],
-            reviews['Review']
+        #print("Connected to DB: %s" % db_name)
+        query = """INSERT INTO application_rating 
+            (USER_ID,APPLICATION_RATING) 
+            VALUES ("{}", "{}")""".format(
+            user_id,
+            given_rating,
         )
         cur.execute(query)
         db_connection.commit()
@@ -113,25 +74,61 @@ def insert_new_review(reviews):
             db_connection.close()
             print("DB connection is closed")
 
-    print("Record added to DB")
+
+# 3 REVIEWS OF RECOMMENDATIONS
+
+def get_recent_recommendations(user_id):
+    db_name = 'Escapade'
+    db_connection = _connect_to_db(db_name)
+    cur = db_connection.cursor()
+    #print('Connected to DB:', db_name)
+    #records = get_all_records()
+    query="""SELECT * FROM saved_recommendations WHERE user_id='"""+ str(user_id) + "' AND RECOMMENDATION_ID NOT IN (SELECT RECOMMENDATION_ID FROM reviews_recommendations )" \
+                                                                                    " ORDER BY recommendation_id DESC LIMIT 1"
+
+    cur.execute(query)
+    last_recommendation=cur.fetchall()
+    cur.close()
+    db_connection.close()
+    return last_recommendation
+    # recommendations = [x for x in records if x[1] == user_id]
+    # last_recommendation=' '
+    # for i in recommendations:
+    #     last_recommendation=i[2]
+    #     # print(i[2])
+    # print(last_recommendation)
+
+
+# this is what we are adding, as a Dict in key value pairs (where the users review function will go/imported in)
+# this is just an example
+
+def insert_review(user_id,recommendation_id,name,review):
+    db_name = 'Escapade'
+    db_connection = _connect_to_db(db_name)
+    cur = db_connection.cursor()
+    query = """
+            INSERT INTO reviews_recommendations 
+            (USER_ID,RECOMMENDATION_ID,NAME,REVIEW)
+            VALUES ("{}", "{}","{}","{}")
+            """.format(user_id,recommendation_id,
+                       name,review)
+    cur.execute(query)
+    db_connection.commit()
+    cur.close()
+
+    db_connection.close()
 
 
 
 # 3 ESCAPADE USERS
 
-# users = {
-#     'userID': '123',
-#     'UsersNames': '456',
-#     'UsersPasswords': 'abc'
-# }
-
-def get_all_records():
+def get_all_records(email):
     try:
-        db_name = "project"
+        db_name = "Escapade"
         db_connection = _connect_to_db(db_name)
         cur = db_connection.cursor()
 
-        query = """SELECT * FROM escapade_users"""
+        query = """SELECT * FROM escapade_users WHERE EMAIL_ADDRESS='"""+ email + "'"
         cur.execute(query)
         results = cur.fetchall()
 
@@ -146,20 +143,21 @@ def get_all_records():
 
 
 #if using check1 to check if username is already present, need to enter username as input
-def insert_new_users(record):
+def insert_new_users(name,email_address,password):
     try:
-        db_name = "try"
+        db_name = "Escapade"
         db_connection = _connect_to_db(db_name)
+        print(db_connection)
         cur = db_connection.cursor()
-        print("connected to DB: ", db_name)
+        #print("connected to DB: ", db_name)
 
         # cur.execute("Select * from escapade_users where USER_NAME = ?", (username))
         # check1 = cur.fetchone()
 
-        query = """ INSERT INTO escapade_users ({})
-        VALUES ("{}", "{}")
-        """.format(",".join(record.keys()), record['USER_NAME'], record['USER_PASSWORD'])
-        cur.execute(query)
+        query = """ INSERT INTO escapade_users (USER_NAME,EMAIL_ADDRESS,USER_PASSWORD)
+        VALUES (%s,%s,%s)"""
+        record = (name,email_address,password)
+        cur.execute(query,record)
         db_connection.commit()
         cur.close()
 
@@ -169,15 +167,16 @@ def insert_new_users(record):
 
 
 def password_from_inputted_username(username, password):
-    records = get_all_records()
-    password_based_on_user = [x for x in records if x[1] == username]
-    print(password_based_on_user)   ##remove later
-    for i in password_based_on_user:
-        print(i[2])    ## remove latez
-    if password == i[2]:
-        print("congratulations!")
+    records = get_all_records(username)
+    if len(records)==0:
+        return 0
     else:
-        print("try again")
+        if records[0][3]==password:
+            usr=utils.user(records[0][0],records[0][1],records[0][2],records[0][3])
+            return usr
+        else:
+            return 0
+
         
         
 

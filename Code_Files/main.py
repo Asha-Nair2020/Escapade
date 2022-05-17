@@ -1,15 +1,27 @@
 import pandas as pd
 from art import logo
 import utils
-from connect_db import _connect_to_db
+import connect_db
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 7000)
 
 print(logo, '\n Welcome to the joys of London!\n', )
 
-
+usr=None
 def main():
+    #usr=utils.user()
+    global usr
+    if usr == None:                         #Check if user is logged in already. If so, usr, the user object will not be none.
+        usr=utils.homepage()                # Login or register
+    last_recommendation=connect_db.get_recent_recommendations(usr.user_id)
+    if len(last_recommendation)!=0:
+        review_option=input('Would you like to review '+last_recommendation[0][2]+' you visted last? Y/N:  ')
+        if review_option=='Y':
+            get_review=input('Please write your review here: \n')
+            connect_db.insert_review(usr.user_id,last_recommendation[0][0],last_recommendation[0][2],get_review)
+            print('Thank you for your review!\n ')
+
     try:
         while 1 == 1:
             # # 1. Create objects
@@ -60,7 +72,7 @@ def main():
                     results_json = api_obj.get_api_response(api_obj.endpoint_tomtom + sub_menu[int(option)] + '.json',
                                                             None, params)
 
-                    category_results = []
+                    search_results = []
                     for i in range(len(results_json['results'])):
                         category_dict = {}
                         category_dict['NAME'] = results_json['results'][i]['poi']['name']
@@ -70,20 +82,21 @@ def main():
                             category_dict['PHONE'] = results_json['results'][i]['poi']['phone']
                         else:
                             category_dict['PHONE'] = ''
-                        category_results.append(category_dict)
-                    print(utl_obj.create_table(category_results))
-                    activity_choice = utl_obj.user_input('Where would you like to go? '
-                                                         'Kindly enter the index of the place. Thank you.')
+                        search_results.append(category_dict)
+                    df = utl_obj.create_table(search_results)
+                    print(df)
+                    activity_choice = int(utl_obj.user_input('Kindly enter the index of the place you would like to go: '))
+                    selected_spot = df.iloc[activity_choice - 1]
                     recommendation = input("Are you happy with recommendation please only select one: Yes/No")
                     if activity_choice:
-                        if recommendation == "No" or "no":
-                            activity_choice = utl_obj.user_input('Where would you like to go? '
-                                                                 'Kindly enter the index of the place again. Thank you.')
-                            recommendation = input("Are you happy with recommendation please ony select one: Yes/No")
-                        if recommendation == "Yes" or "yes":
+                        if recommendation == "No" or recommendation == "no":
+                            main()
+                        if recommendation == "Yes" or recommendation =="yes":
+                            print(usr.user_id)
+                            connect_db.insert_new_recommendation(int(usr.user_id),selected_spot)
                             print("This recommendation will save to your favourites now!")
                         else:
-                            print("Please try again")
+                            print("Invalid selection")
 
 
                     # Please call the function to insert activity choice to the database.>
@@ -101,7 +114,7 @@ def main():
 
                     data1 = api_obj.get_api_response(api_obj.endpoint_yelp, headers, parameters)
 
-                    results = []
+                    search_results = []
                     for i in range(len(data1['businesses'])):
                         features = {}
                         features['NAME'] = data1['businesses'][i]['name']
@@ -113,23 +126,25 @@ def main():
                         features['IS_OPEN'] = 'Yes' if data1['businesses'][i]['is_closed'] == False else 'No'
                         features['ADDRESS'] = ','.join(data1['businesses'][i]['location']['display_address'])
                         features['PHONE'] = data1['businesses'][i]['display_phone']
-                        results.append(features)
-                    print(utl_obj.create_table(results))
+                        search_results.append(features)
+                    df = utl_obj.create_table(search_results)
+                    print(df)
+                    df['CATEGORY']=sub_menu[int(option)]
 
-                    activity_choice1 = utl_obj.user_input('Where would you like to go? '
-                                                          'Kindly enter the index of the place. Thank you.')
+                    activity_choice1 = int(utl_obj.user_input('Where would you like to go? '
+                                                          'Kindly enter the index of the place'))
+                    selected_spot = df.iloc[activity_choice1 - 1]
+
                     recommendation1 = input("Are you happy with recommendation please only select one: Yes/No")
                     if activity_choice1:
-                        if recommendation1 == "No" or "no":
-                            activity_choice1 = utl_obj.user_input('Where would you like to go? '
-                                                                 'Kindly enter the index of the place again. Thank you.')
-                            recommendation1 = input("Are you happy with recommendation please ony select one: Yes/No")
-                        if recommendation1 == "Yes" or "yes":
+                        if recommendation1 == "No" or recommendation1 =="no":
+                            main()
+                        if recommendation1 == "Yes" or recommendation1 =="yes":
+                            print(usr.name)
+                            connect_db.insert_new_recommendation(int(usr.user_id), selected_spot)     ## Calling the function to insert activity choice to the database.
                             print("This recommendation will save to your favourites now!")
                         else:
-                            print("Please try again")
-
-                    ## Please call the function to insert activity choice to the database.
+                            print("Invalid selection")
 
                 elif option == '0':
                     main()
@@ -144,9 +159,7 @@ def main():
                 rating_option = utl_obj.user_input('Would you like to leave us a rating?Y/N: ')
                 if rating_option == 'Y':
                     app_rating = utl_obj.user_input('From 1-5,How would you rate us?')
-
-                    ## <Call the class method to insert application rating to DB.>
-
+                    connect_db.insert_application_rating(usr.user_id,app_rating)                   ## <Call the class method to insert application rating to DB.>
                     print('Thank you for rating us. It was a pleasure to serve you.')
                     exit()
                 else:
