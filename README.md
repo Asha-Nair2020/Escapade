@@ -3,4 +3,5 @@ Escapade is a prototype of a mobile application created for tourists visiting Lo
 
 Application requirements: 
 Python Version: 3.10.4 or above. 
+For some functions to work, please install tabulate : pip install tabulate
 Please run the Mysql scripts with your password to the database on your machine to see our application working. 
