@@ -1,7 +1,8 @@
 import requests
 import pandas as pd
 import numpy as np
-from connect_db import password_from_inputted_username, insert_new_users
+from tabulate import tabulate
+import connect_db
 
 
 class api:
@@ -30,6 +31,7 @@ class utilities:
 
     def view_menu(self):
         try:
+            print('\n_____________________YOUR ESCAPADE SEARCH MENU_____________________________\n\n')
             menu = {1: 'Attractions', 2: 'Restaurants',
                     3: 'Experience Nature', 4: 'Shopping', 5: 'Hotels', 0: 'Return to Main Menu'}
             return menu
@@ -38,9 +40,19 @@ class utilities:
 
     def view_main_menu(self):
         try:
+            print('\n_____________________YOUR ESCAPADE MAIN MENU_____________________________\n')
             main_menu = {1: 'Search', 2: 'Help', 0: 'Exit Application'}
             return main_menu
 
+        except Exception as e:
+            print(e)
+
+    def login_or_register(self):
+        try:
+            print('_____________________LOGIN OR REGISTER_____________________________\n\n')
+            login_menu = {'Option': [1,2], 'Name': ['Register','Login']}
+            print(tabulate(login_menu, headers = "keys"),'\n')
+            return login_menu
         except Exception as e:
             print(e)
 
@@ -54,102 +66,125 @@ class utilities:
 
 
 ## Please start code here
+def homepage():                                                      # need a register and log in option when users enter program
+    try:
+        log=utilities()
+        log.login_or_register()
+        hello = input("What would you like to do: ")
+        if hello == "1":
+            usr=register()
+            return usr
+        elif hello == "2":
+            usr=login()
+            return usr
+        else:
+            print("Please choose a valid option")
+            homepage()
+    except Exception as e:
+        print(e)
 
+def register():
+    try:
+        user_exists=True
+        email_exists=True
+        password_validity=False
+        name=''
+        email_address=''
+        while user_exists:
+            name = input("User Name: ")
+            user_exists=connect_db.check_user_exists(name,'USER_NAME')
+            if user_exists:
+                print('User Name already exists')
+
+        while email_exists:
+            email_address = input("Email address: ")
+            email_exists=connect_db.check_user_exists(email_address,'EMAIL_ADDRESS')
+            if email_exists:
+                print('Email already exists')
+
+        while password_validity == False:
+            password = input("Password: ")
+            password_validity = password_checker(password)
+            if password_validity:
+                connect_db.insert_new_users(name, email_address, password)
+                record=connect_db.get_all_records(email_address)
+            else:
+                print("Password entered does not meet requirements. \n The requirements: a special character,a number, a capital and must be greater than 5 characters")
+
+        new_user = user(record[0][0], name, email_address, password)
+        print("Welcome, " + new_user.name)
+        return new_user
+    except Exception as e:
+        print(e)
+
+def login():
+    try:
+        login_result=0
+        while login_result==0:
+            login_email = input("Email address: ")
+            login_password = input("Password: ")
+            login_result=connect_db.password_from_inputted_username(login_email,login_password)
+            if login_result == 0:
+                print("Incorrect email or password. Please enter your details again.")
+
+        print("Welcome, " + login_result.name)
+        usr=user(login_result.user_id,login_result.name,login_result.email_address,login_result.password)
+        return usr
+
+    except Exception as e:
+        print(e)
+
+
+def password_checker(registeredpassword):
+    try:
+        numerics = '0123456789'
+        capitals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        special_characters = "!$£&%*:;@#~+=-_^"
+        sum = 0
+        w = 0
+        x = 0
+        y = 0
+        z = 0
+        while sum != 4:
+            # while len(password) != 5:
+            #     password = input("Please enter a correct password")
+
+            for i in range(len(registeredpassword)):
+                if len(registeredpassword) > 5:
+                    w = 1
+                if registeredpassword[i] in numerics:
+                    x = 1
+                if registeredpassword[i] in capitals:
+                    y = 1
+                if registeredpassword[i] in special_characters:
+                    z = 1
+            sum = w + x + y + z
+            if sum == 4:
+                print("\nPassword is accepted")
+                return True
+
+            else:
+                return False
+
+    except Exception as e:
+        print(e)
 
 
 class user:
-        def __init__(self,name,email_address,password,phone_number,recovery_email):
+        def __init__(self,user_id,name,email_address,password):
+                self.user_id=user_id
                 self.name=name
                 self.email_address=email_address
                 self.password=password
-                self.phone_number=phone_number
-                self.recovery_email=recovery_email
+
        
       
 
 
-        # need a register and log in option when users enter program
-
-
-        def homepage(user):
-            print("Login OR Register")
-            hello = input("What would you like to do: ")
-            if hello == "Register":
-                register()
-            elif hello == "Login":
-                login(user)
-            else:
-                print("Please choose a valid option")
-                homepage(user)
-
-
-        def register():
-            name = input("Name: ")
-            email_address = input("Email address: ")
-            password = input("Password: ")
-            # phone = int(input("Phone number: "))
-            # recovery_email = input("Alternative recovery email address: ")
-            new_user = User(name, email_address, password)
-            print("Welcome, " + new_user.name)
-            homepage(new_user)
-
-
-        def login(user):
-            login_email = input("Email address: ")
-            login_password = input("Password: ")
-
-            if login_password == user.password:
-                print("Welcome, " + user.name)
-            else:
-                print("Incorrect username or password")
-                login(user)
-            homepage('')
-        
-
-        def password_checker(registeredpassword):
-                numerics = '0123456789'
-                capitals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                special_characters = "!$£&%*:;@#~+=-_^"
-                sum = 0
-                w = 0
-                x = 0
-                y = 0
-                z = 0
-                while sum != 4:
-                        # while len(password) != 5:
-                        #     password = input("Please enter a correct password")
-
-                        for i in range(len(registeredpassword)):
-                                if len(registeredpassword) > 5:
-                                        w = 1
-                                if registeredpassword[i] in numerics:
-                                        x = 1
-                                if registeredpassword[i] in capitals:
-                                        y = 1
-                                if registeredpassword[i] in special_characters:
-                                        z = 1
-                        sum = w + x + y + z
-                        if sum == 4:
-                                print("Password is accepted")
-                                ##use serial for user id = wont have to  add this in
-                                record = {
-                                        "USER_NAME": registeredname,
-                                        "USER_PASSWORD": registeredpassword
-                                }
-                                insert_record(record, registeredname)
-
-                        else:
-                                print(
-                                        "Password entered does not meet requirements. \n The requirements: a special character, a capital and must be greater than 5 characters")
-                                registeredpassword = input("Please enter a correct password: ")
-
-
-class escapade_db(user):
 
 
 
-homepage('')
 
 
-class escapade_db(User):
-    pass
+
+
