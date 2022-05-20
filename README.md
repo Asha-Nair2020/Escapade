@@ -14,6 +14,11 @@ Escapade is a prototype of a mobile application created for tourists visiting Lo
     - tabulate : pip install tabulate
     - pandas : pip install pandas
     - numpy: pip install nuumpy
-- Please run the Mysql scripts to set up the Escapade Database on your machine and run the executable files to see our application working. 
+- Please run the Mysql scripts to set up the Escapade Database on your machine and the executable files to see our application in action. 
 - To review the application code, follow 'Code_files/main.py'+'Code_files/utils.py'+'Code_files/connect_db.py'+'Code_files/art.py'
 - Please refer to the detailed documentation to understand the process flow and a simple DB schema. 
+
+We hope you enjoy your visit to London and Escapade serves you well. 
+Enjoy!!
+
+Team Escapade :) 
