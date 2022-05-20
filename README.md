@@ -19,7 +19,7 @@ Escapade is a prototype of a mobile application created for tourists visiting Lo
 - To review the application code, follow 'Code_files/main.py'+'Code_files/utils.py'+'Code_files/connect_db.py'+'Code_files/art.py'
 - Please refer to the detailed documentation to understand the process flow and a simple DB schema. 
 
-We hope you enjoy your visit to London and Escapade serves you well. 
-Enjoy!!
+We wish you enjoy your visit to London and Escapade serves you well. 
+
 
 Team Escapade :) 
