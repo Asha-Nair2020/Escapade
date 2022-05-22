@@ -19,6 +19,7 @@ Escapade is a prototype of a mobile application created for tourists visiting Lo
     - requests: pip install requests
 - Please run the Mysql scripts to set up the Escapade Database on your machine and then executable files to see our application in action. 
 - To review the application code, follow 'Code_files/main.py'+'Code_files/utils.py'+'Code_files/connect_db.py'+'Code_files/art.py'
+-  The testing files are separately placed in the Code_files directory.
 - Please refer to the [project brief](https://docs.google.com/document/d/1DviyJKUwoJeGmsbylwu3ILdX-54EoODf9WwZcJABiaM/edit?usp=sharing) to understand the specifications, design and implementation. 
 
 We wish you enjoy your visit to London and Escapade serves you well. 
